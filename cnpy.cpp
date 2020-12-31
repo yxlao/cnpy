@@ -41,11 +41,9 @@ char cnpy::map_type(const std::type_info &t) {
 
     if (t == typeid(std::complex<float>)) return 'c';
     if (t == typeid(std::complex<double>)) return 'c';
-    if (t == typeid(std::complex<long double>))
-        return 'c';
+    if (t == typeid(std::complex<long double>)) return 'c';
 
-    else
-        return '?';
+    return '?';
 }
 
 template <>
