@@ -69,10 +69,6 @@ void parse_npy_header(FILE* fp,
                       size_t& word_size,
                       std::vector<size_t>& shape,
                       bool& fortran_order);
-void parse_npy_header(unsigned char* buffer,
-                      size_t& word_size,
-                      std::vector<size_t>& shape,
-                      bool& fortran_order);
 NpyArray npy_load(std::string fname);
 
 template <typename T>
