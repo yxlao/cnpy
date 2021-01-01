@@ -15,12 +15,14 @@
 #include <regex>
 #include <stdexcept>
 
-char cnpy::BigEndianTest() {
+namespace cnpy {
+
+char BigEndianTest() {
     int x = 1;
     return (((char *)&x)[0]) ? '<' : '>';
 }
 
-char cnpy::map_type(const std::type_info &t) {
+char map_type(const std::type_info &t) {
     if (t == typeid(float)) return 'f';
     if (t == typeid(double)) return 'f';
     if (t == typeid(long double)) return 'f';
@@ -47,14 +49,13 @@ char cnpy::map_type(const std::type_info &t) {
 }
 
 template <>
-std::vector<char> &cnpy::operator+=(std::vector<char> &lhs,
-                                    const std::string rhs) {
+std::vector<char> &operator+=(std::vector<char> &lhs, const std::string rhs) {
     lhs.insert(lhs.end(), rhs.begin(), rhs.end());
     return lhs;
 }
 
 template <>
-std::vector<char> &cnpy::operator+=(std::vector<char> &lhs, const char *rhs) {
+std::vector<char> &operator+=(std::vector<char> &lhs, const char *rhs) {
     // write in little endian
     size_t len = strlen(rhs);
     lhs.reserve(len);
@@ -64,10 +65,10 @@ std::vector<char> &cnpy::operator+=(std::vector<char> &lhs, const char *rhs) {
     return lhs;
 }
 
-void cnpy::parse_npy_header(FILE *fp,
-                            size_t &word_size,
-                            std::vector<size_t> &shape,
-                            bool &fortran_order) {
+void parse_npy_header(FILE *fp,
+                      size_t &word_size,
+                      std::vector<size_t> &shape,
+                      bool &fortran_order) {
     char buffer[256];
     size_t res = fread(buffer, sizeof(char), 11, fp);
     if (res != 11) throw std::runtime_error("parse_npy_header: failed fread");
@@ -122,20 +123,20 @@ void cnpy::parse_npy_header(FILE *fp,
     word_size = atoi(str_ws.substr(0, loc2).c_str());
 }
 
-cnpy::NpyArray load_the_npy_file(FILE *fp) {
+NpyArray load_the_npy_file(FILE *fp) {
     std::vector<size_t> shape;
     size_t word_size;
     bool fortran_order;
-    cnpy::parse_npy_header(fp, word_size, shape, fortran_order);
+    parse_npy_header(fp, word_size, shape, fortran_order);
 
-    cnpy::NpyArray arr(shape, word_size, fortran_order);
+    NpyArray arr(shape, word_size, fortran_order);
     size_t nread = fread(arr.data<char>(), 1, arr.num_bytes(), fp);
     if (nread != arr.num_bytes())
         throw std::runtime_error("load_the_npy_file: failed fread");
     return arr;
 }
 
-cnpy::NpyArray cnpy::npy_load(std::string fname) {
+NpyArray npy_load(std::string fname) {
     FILE *fp = fopen(fname.c_str(), "rb");
 
     if (!fp) throw std::runtime_error("npy_load: Unable to open file " + fname);
@@ -145,3 +146,5 @@ cnpy::NpyArray cnpy::npy_load(std::string fname) {
     fclose(fp);
     return arr;
 }
+
+}  // namespace cnpy
